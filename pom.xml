@@ -1,0 +1,206 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.shakti</groupId>
+	<artifactId>MavenWorld</artifactId>
+	<version>1.0</version>
+	<packaging>jar</packaging>
+
+	<name>MavenWorld</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.source.target>1.8</maven.source.target>
+        <maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+
+	<distributionManagement>
+        <repository>    <!-- Release Repo settings -->
+            <uniqueVersion>false</uniqueVersion>
+            <id>release-repo</id>
+            <name>release-repo</name>
+            <url>http://localhost:9090/repository/release-repo/</url>
+        </repository>
+        <snapshotRepository>    <!-- Snapshot repo settings -->
+            <uniqueVersion>true</uniqueVersion>
+            <id>snapshot-repo</id>
+            <name>snapshot-repo</name>
+            <url>http://localhost:9090/repository/snapshot-repo/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
+    <repositories>
+        <repository>    <!-- Release repo settings -->
+            <id>release-repo</id>
+            <name>release-repo</name>
+            <url>http://localhost:9090/repository/release-repo/</url>
+        </repository>
+        <repository>    <!-- Snapshot repo settings -->
+            <id>snapshot-repo</id>
+            <name>snapshot-repo</name>
+            <url>http://localhost:9090/repository/snapshot-repo/</url>
+        </repository>
+    </repositories>    
+    
+	<dependencies>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-server</artifactId>
+			<scope>compile</scope>
+			<version>3.141.59</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<scope>compile</scope>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<scope>compile</scope>
+			<version>7.1.0</version>
+		</dependency>		
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>compile-profile</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.1</version>
+						<executions>
+							<execution>
+								<phase>compile</phase>
+								<goals>
+									<goal>compile</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<source>1.8</source>
+							<target>1.8</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>run-profile</id>
+			<build>
+				<finalName>mavenworld</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-resources-plugin</artifactId> <!-- plug-in used to copy main, test source files or some other resources to some directory -->
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal> <!-- copies both main and test source files automatically -->
+									<!--goal>resources</goal-->
+									<!-- copies the main source files automatically -->
+									<!--goal>testResources</goal-->
+									<!-- copies the test source files automatically -->
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<outputDirectory>resources</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/java/org/shakti/MavenWorld</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>*.java</include>
+									</includes>
+								</resource>
+								<resource>
+									<directory>src/test/java/org/shakti/MavenWorld</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>*.java</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<executions>
+							<execution>
+								<phase>test</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<suiteXmlFiles>
+								<suiteXmlFile>testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
+							<parallel>classes</parallel>
+							<threadCount>2</threadCount>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>test-jar</goal> <!-- Using "jar" as goal throws an error during "mvn package" as it runs it by default anyways -->
+								</goals>
+							</execution>
+						</executions>
+						<!--configuration>
+						<finalName>App</finalName>
+						<archive>
+							<manifest>
+								<addClasspath>true</addClasspath>
+								<classpathPrefix>lib/</classpathPrefix>
+								<mainClass>org.shakti.MavenWorld.App</mainClass>
+							</manifest>
+						</archive>
+						<archive></archive>
+					</configuration-->
+						<!-- NOT WORKING AND NOT GENERATING THE MAIN-CLASS IN MANIFEST FILE. ASSEMBLY SEEMS MUCH BETTER AS IT PACKAGES ALL THE DEPENDENT JARS -->
+					</plugin>
+
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<finalName>mavenworld</finalName>
+							<archive>
+								<manifest>
+									<addClasspath>true</addClasspath>
+									<mainClass>org.shakti.MavenWorld.App</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<!-- This will be appended to the final output JAR file -->
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

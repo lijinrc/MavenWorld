@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="MavenDemoSuite">
+	<parameter name="suiteName" value="MavenDemoSuite"/>
+
+	<parameter name="desktopBrowser" value="${BROWSER_NAME}"/>
+	<parameter name="envUrl" value="${ENV_URL}"/>
+	
+	<test name="QA_TC001">
+		<parameter name="testName" value="QA_TC001" />
+		<classes>
+			<class name="org.shakti.MavenWorld.AppTest" />
+		</classes>
+	</test>																																
+</suite>
