@@ -31,7 +31,7 @@ stages:
 
 - stage: ProvisionDockerImageOnAzure
   displayName: ProvisionDockerImageOnAzure
-  dependsOn: Build
+  dependsOn: BuildAndPushDockerImage
   jobs:
   - job: ProvisionDockerImageOnAzure
     displayName: ProvisionDockerImageOnAzure

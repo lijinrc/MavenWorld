@@ -21,7 +21,8 @@ provider "azurerm" {
 # On AzurePortal > Create a Resource Group (if not already created)
 # On AzurePortal > Create Resource > Storage Accounts > Create New Storage Account > Open the Storage Acc > Choose Container (Folder) > Create a New Container
 
-# Saving the .tfstate on Azure Storage > Folder/Container created above
+# Previously created Resource Group and Storage Account manually in Azure Cloud
+# And then saving the current terraform .tfstate on Azure Storage > Folder/Container created above
 terraform {
   backend "azurerm" {
     resource_group_name  = "my_rg"
@@ -31,9 +32,16 @@ terraform {
   }
 }
 
+# Current BuildId received from Azure DevOps Pipeline
 variable "newimagebuild" {
 	type = "string"
 	description = "Latest Image BuildId received from Azure DevOps"
+}
+
+# Create Resource Group
+resource "azurerm_resource_group" "tf_rg" {
+  name     = "tf_rg"
+  location = "centralindia"
 }
 
 resource "azurerm_container_group" "tf_cg" {
@@ -47,7 +55,7 @@ resource "azurerm_container_group" "tf_cg" {
 
   container {
     name   = "nginx"
-    image  = "lijinrc/nginx:${var.newimagebuild}"
+    image  = "lijinrc/nginx:${var.newimagebuild}"	# Current BuildId received from Azure DevOps Pipeline
     cpu    = "1"
     memory = "1"
     ports {
