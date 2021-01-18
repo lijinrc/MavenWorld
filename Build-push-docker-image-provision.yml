@@ -15,7 +15,7 @@ stages:
 - stage: BuildAndPushDockerImage
   displayName: BuildAndPushDockerImage
   jobs:  
-  - job: Build
+  - job: BuildAndPushDockerImage
     displayName: BuildAndPushDockerImage
     pool:
       vmImage: 'ubuntu-latest'
@@ -33,7 +33,7 @@ stages:
   displayName: ProvisionDockerImageOnAzure
   dependsOn: Build
   jobs:
-  - job: Provision
+  - job: ProvisionDockerImageOnAzure
     displayName: ProvisionDockerImageOnAzure
     pool:
       vmImage: 'ubuntu-latest'
