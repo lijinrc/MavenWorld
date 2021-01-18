@@ -1,0 +1,54 @@
+# Docker
+# Build a Docker image 
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: BuildAndPushDockerImage
+  displayName: BuildAndPushDockerImage
+  jobs:  
+  - job: Build
+    displayName: BuildAndPushDockerImage
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'Docker Hub Registry'
+        repository: 'lijinrc/nginx'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(tag)
+
+- stage: ProvisionDockerImageOnAzure
+  displayName: ProvisionDockerImageOnAzure
+  dependsOn: Build
+  jobs:
+  - job: Provision
+    displayName: ProvisionDockerImageOnAzure
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables: 
+    - group: TeraformEnvVars
+    steps:
+    - script: |
+        set -e
+        terraform init -input=false
+        terraform apply -input=false -auto-approve
+      name: RunTerraform
+      displayName: RunTerraform
+      env:
+        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+        ARM_TENANT_ID: $(ARM_TENANT_ID)
+        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+        TF_VAR_newimagebuild: $(tag)
